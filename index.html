@@ -5,8 +5,9 @@ body{font-family:'Google Sans',Roboto,sans-serif}
 .page{display:none}.page.active{display:block}
 .login-wrap{min-height:600px;background:#f0ebf8;display:flex;align-items:center;justify-content:center;padding:32px 16px}
 .login-card{background:white;border-radius:12px;padding:40px 36px;max-width:400px;width:100%;border-top:8px solid #7248b9}
-.login-logo{font-size:22px;font-weight:500;color:#7248b9;margin-bottom:6px}
-.login-sub{font-size:13px;color:#5f6368;margin-bottom:28px}
+.login-logo{font-size:22px;font-weight:500;color:#7248b9;margin-bottom:4px}
+.login-sub{font-size:13px;color:#5f6368;margin-bottom:4px}
+.login-notice{font-size:13px;color:#d93025;font-weight:500;margin-bottom:24px}
 .l-label{font-size:13px;color:#444;margin-bottom:6px;display:block}
 .l-inp{width:100%;padding:10px 14px;border:1px solid #dadce0;border-radius:6px;font-size:15px;outline:none;color:#202124}
 .l-inp:focus{border-color:#7248b9;box-shadow:0 0 0 2px #ede8fc}
@@ -47,6 +48,8 @@ body{font-family:'Google Sans',Roboto,sans-serif}
 .member-radio input{accent-color:#7248b9;width:16px;height:16px;flex-shrink:0}
 .member-name{font-weight:500}
 .member-kana{font-size:12px;color:#5f6368;margin-left:4px}
+.nashi-box{background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:10px 14px;margin-top:12px}
+.nashi-label{font-size:13px;color:#795548;margin-bottom:6px}
 .adm-wrap{background:#f8f9fa;min-height:600px;padding-bottom:48px}
 .adm-bar{background:#7248b9;color:white;display:flex;align-items:stretch}
 .adm-bar-title{font-size:15px;font-weight:500;padding:14px 20px;flex:1;align-self:center}
@@ -115,11 +118,13 @@ body{font-family:'Google Sans',Roboto,sans-serif}
 .godo-note{font-size:13px;color:#7248b9;background:#f3f0fc;border-radius:6px;padding:8px 12px;margin-top:10px}
 </style>
 
+<!-- LOGIN -->
 <div id="pg-login" class="page active">
   <div class="login-wrap">
     <div class="login-card">
       <div class="login-logo">支部会開催報告</div>
       <div class="login-sub">2026年度 入力システム</div>
+      <div class="login-notice">開催後、5日以内に入力</div>
       <label class="l-label">パスワード</label>
       <input class="l-inp" type="password" id="pw-inp" placeholder="パスワードを入力してください" onkeydown="if(event.key==='Enter')doLogin()">
       <div class="l-err" id="pw-err"></div>
@@ -128,6 +133,7 @@ body{font-family:'Google Sans',Roboto,sans-serif}
   </div>
 </div>
 
+<!-- FORM -->
 <div id="pg-form" class="page">
   <div class="form-wrap">
     <div class="f-header">
@@ -136,8 +142,25 @@ body{font-family:'Google Sans',Roboto,sans-serif}
         <div class="f-req-note" id="disp-req-note"></div>
       </div>
     </div>
+
+    <!-- Q1: 支部会開催の有無 -->
     <div class="f-sec">
       <div class="qt" id="disp-q1"></div>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="kaisai" value="有" onchange="onKaisaiChange()">有</label>
+        <label class="ri"><input type="radio" name="kaisai" value="無" onchange="onKaisaiChange()">無</label>
+      </div>
+      <div id="nashi-wrap" class="hidden">
+        <div class="nashi-box" style="margin-top:12px">
+          <div class="nashi-label">「無」を選択した理由を入力してください</div>
+          <input class="inp" id="nashi-reason" type="text" placeholder="理由を入力">
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2: 議会・氏名 -->
+    <div class="f-sec">
+      <div class="qt" id="disp-q2"></div>
       <div style="margin-bottom:16px">
         <div class="dlbl">議会名を選択してください</div>
         <select class="sel" id="gikai" onchange="updateMembers()"><option value="">選択してください</option></select>
@@ -147,8 +170,10 @@ body{font-family:'Google Sans',Roboto,sans-serif}
         <div class="member-list" id="member-list"></div>
       </div>
     </div>
+
+    <!-- Q3: 総支部・開催単位 -->
     <div class="f-sec">
-      <div class="qt" id="disp-q2"></div>
+      <div class="qt" id="disp-q3"></div>
       <div style="margin-bottom:16px">
         <div class="dlbl">総支部を選択してください</div>
         <select class="sel" id="soushi" onchange="updateShibu()">
@@ -167,8 +192,10 @@ body{font-family:'Google Sans',Roboto,sans-serif}
         </div>
       </div>
     </div>
+
+    <!-- Q4: 開催日時 -->
     <div class="f-sec">
-      <div class="qt" id="disp-q3"></div>
+      <div class="qt" id="disp-q4"></div>
       <div class="dgrid">
         <div><div class="dlbl">月</div>
           <select class="sel" id="month" onchange="buildDays()">
@@ -184,13 +211,8 @@ body{font-family:'Google Sans',Roboto,sans-serif}
       </div>
       <div id="dow-disp" style="font-size:15px;color:#202124;margin-top:14px;min-height:22px"></div>
     </div>
-    <div class="f-sec">
-      <div class="qt" id="disp-q4"></div>
-      <div class="rg" id="kokkai-rg"></div>
-      <div id="other-wrap" class="hidden" style="margin-top:8px">
-        <input class="inp" id="other-name" type="text" placeholder="氏名を入力してください" style="margin-left:30px;width:calc(100% - 30px)">
-      </div>
-    </div>
+
+    <!-- Q5-7: 参加者数 -->
     <div class="f-sec">
       <div class="qt" id="disp-q5" style="margin-bottom:20px"></div>
       <input class="inp" id="sonen" type="text" placeholder="人数を入力">
@@ -199,10 +221,13 @@ body{font-family:'Google Sans',Roboto,sans-serif}
       <div class="qt" id="disp-q7" style="margin-top:28px;margin-bottom:20px"></div>
       <input class="inp" id="seinen" type="text" placeholder="人数を入力">
     </div>
+
+    <!-- Q8: 自由記述 -->
     <div class="f-sec">
       <div class="qt" id="disp-q8"></div>
       <textarea class="txta" id="freeText" placeholder="自由にご記入ください"></textarea>
     </div>
+
     <div class="btn-row">
       <button class="sbtn" onclick="submitForm()">送信</button>
       <button class="obtn" onclick="logout()">ログアウト</button>
@@ -212,6 +237,7 @@ body{font-family:'Google Sans',Roboto,sans-serif}
   </div>
 </div>
 
+<!-- ADMIN -->
 <div id="pg-admin" class="page">
   <div class="adm-wrap">
     <div class="adm-bar">
@@ -223,6 +249,7 @@ body{font-family:'Google Sans',Roboto,sans-serif}
       <button class="adm-logout" onclick="logout()">ログアウト</button>
     </div>
     <div class="adm-body">
+
       <div id="tab-answers" class="tab-content active">
         <div class="adm-stats" id="adm-stats"></div>
         <div class="adm-card">
@@ -235,7 +262,10 @@ body{font-family:'Google Sans',Roboto,sans-serif}
               <option>尼崎</option><option>西宮</option><option>東兵庫</option><option>播磨</option>
               <option>姫路</option><option>北兵庫</option>
             </select>
-            <select class="fsel" id="f-kokkai" onchange="renderTable()"><option value="">国会担当 すべて</option></select>
+            <select class="fsel" id="f-kaisai" onchange="renderTable()">
+              <option value="">開催有無 すべて</option>
+              <option value="有">有</option><option value="無">無</option>
+            </select>
           </div>
           <div class="xbar">
             <button class="xbtn" onclick="exportSelected()">
@@ -264,19 +294,6 @@ body{font-family:'Google Sans',Roboto,sans-serif}
           <div class="adm-card-title">各質問の見出しと必須設定</div>
           <div style="font-size:12px;color:#888;margin-bottom:14px">各項目の見出しを編集し、必須にするかどうかを選択できます。</div>
           <div id="q-rows-wrap"></div>
-        </div>
-        <div class="adm-card">
-          <div class="adm-card-title">④ 国会担当の選択肢</div>
-          <div style="font-size:12px;color:#888;margin-bottom:14px">「その他（自由記述）」と「なし」は固定です。</div>
-          <div class="opt-list" id="kokkai-opts-edit"></div>
-          <button class="opt-add-btn" onclick="addKokkaiOpt()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7248b9" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            選択肢を追加
-          </button>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-            <div class="opt-fixed">その他（自由記述）　※固定</div>
-            <div class="opt-fixed">なし　※固定</div>
-          </div>
         </div>
         <div class="adm-card">
           <div class="save-bar">
@@ -321,16 +338,15 @@ const SOUSHI_SHIBU={
 const DEFAULTS={
   title:"2026年度 支部会開催報告の入力フォーム",
   qs:[
-    {key:"q1",label:"①議会名・氏名",req:true,fixed:false,note:"議会名 → 氏名 選択"},
-    {key:"q2",label:"②総支部・開催単位（支部など）",req:true,fixed:false,note:"総支部 → 支部/合同開催 選択"},
-    {key:"q3",label:"③開催日時・曜日",req:true,fixed:false,note:"月・日 選択 → 曜日自動表示"},
-    {key:"q4",label:"④国会担当の有無",req:true,fixed:false,note:"ラジオボタン選択"},
-    {key:"q5",label:"⑤【壮年】参加者の人数（数字のみ。0なら0と入力）",req:true,fixed:false,note:"短文テキスト入力"},
-    {key:"q6",label:"⑥【女性】参加者の人数（数字のみ。0なら0と入力）",req:true,fixed:false,note:"短文テキスト入力"},
-    {key:"q7",label:"⑦【青年】参加者の人数（数字のみ。0なら0と入力）",req:true,fixed:false,note:"短文テキスト入力"},
-    {key:"q8",label:"⑧自由記述（工夫した内容や参加された党員さんのお声など）",req:false,fixed:false,note:"長文テキスト入力"},
-  ],
-  kokkaiOpts:["伊藤県代表","高橋県副代表"]
+    {key:"q1",label:"①支部会開催の有無",req:true,note:"有／無 選択（無の場合は理由を入力）"},
+    {key:"q2",label:"②議会名・氏名",req:true,note:"議会名 → 氏名 選択"},
+    {key:"q3",label:"③総支部・開催単位（支部など）",req:true,note:"総支部 → 支部/合同開催 選択"},
+    {key:"q4",label:"④開催日時・曜日",req:true,note:"月・日 選択 → 曜日自動表示"},
+    {key:"q5",label:"⑤【壮年】参加者の人数（数字のみ。0なら0と入力）",req:true,note:"短文テキスト入力"},
+    {key:"q6",label:"⑥【女性】参加者の人数（数字のみ。0なら0と入力）",req:true,note:"短文テキスト入力"},
+    {key:"q7",label:"⑦【青年】参加者の人数（数字のみ。0なら0と入力）",req:true,note:"短文テキスト入力"},
+    {key:"q8",label:"⑧自由記述（工夫した内容、登壇者の話、参加された党員さんのお声など）",req:false,note:"長文テキスト入力"},
+  ]
 };
 
 let cfg=JSON.parse(JSON.stringify(DEFAULTS));
@@ -409,17 +425,23 @@ function applyConfig(){
     const el=document.getElementById('disp-'+q.key);
     if(el)el.innerHTML=q.req?q.label+'<span class="req">*</span>':q.label;
   });
-  buildKokkaiForm();updatePreview();
+  updatePreview();
+}
+
+function onKaisaiChange(){
+  const v=document.querySelector('input[name=kaisai]:checked')?.value;
+  document.getElementById('nashi-wrap').classList.toggle('hidden',v!=='無');
+  if(v!=='無')document.getElementById('nashi-reason').value='';
 }
 
 function updateShibu(){
-  const s=document.getElementById('soushi').value,shibuSel=document.getElementById('shibu'),shibuWrap=document.getElementById('shibu-wrap'),godoWrap=document.getElementById('godo-wrap');
+  const s=document.getElementById('soushi').value,shibuSel=document.getElementById('shibu'),sw=document.getElementById('shibu-wrap'),gw=document.getElementById('godo-wrap');
   shibuSel.innerHTML='<option value="">選択してください</option>';
-  godoWrap.classList.add('hidden');document.getElementById('godo-text').value='';
-  if(!s){shibuWrap.classList.add('hidden');return;}
+  gw.classList.add('hidden');document.getElementById('godo-text').value='';
+  if(!s){sw.classList.add('hidden');return;}
   (SOUSHI_SHIBU[s]||[]).forEach(sb=>{const o=document.createElement('option');o.value=sb;o.textContent=sb;shibuSel.appendChild(o);});
   const g=document.createElement('option');g.value='合同開催';g.textContent='合同開催';shibuSel.appendChild(g);
-  shibuWrap.classList.remove('hidden');
+  sw.classList.remove('hidden');
 }
 function onShibuChange(){
   const v=document.getElementById('shibu').value,gw=document.getElementById('godo-wrap');
@@ -429,15 +451,6 @@ function onShibuChange(){
 function getShibuValue(){
   const s=document.getElementById('shibu').value;
   return s==='合同開催'?'合同開催：'+document.getElementById('godo-text').value:s;
-}
-
-function buildKokkaiForm(){
-  const rg=document.getElementById('kokkai-rg');rg.innerHTML='';
-  cfg.kokkaiOpts.forEach(opt=>{const l=document.createElement('label');l.className='ri';l.innerHTML=`<input type="radio" name="kokkai" value="${opt}" onchange="toggleOther()">${opt}`;rg.appendChild(l);});
-  const lO=document.createElement('label');lO.className='ri';lO.innerHTML=`<input type="radio" name="kokkai" value="その他" onchange="toggleOther()">その他`;rg.appendChild(lO);
-  const lN=document.createElement('label');lN.className='ri';lN.innerHTML=`<input type="radio" name="kokkai" value="なし" onchange="toggleOther()">なし`;rg.appendChild(lN);
-  const fk=document.getElementById('f-kokkai');
-  if(fk){fk.innerHTML='<option value="">国会担当 すべて</option>';cfg.kokkaiOpts.forEach(opt=>{const o=document.createElement('option');o.value=opt;o.textContent=opt;fk.appendChild(o);});['その他','なし'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;fk.appendChild(o);});}
 }
 
 function buildEditUI(){
@@ -455,21 +468,11 @@ function buildEditUI(){
       <span class="badge-${q.req?'req':'opt'}" id="badge-${q.key}">${q.req?'必須':'任意'}</span>`;
     wrap.appendChild(row);
   });
-  buildKokkaiOptEdit();
 }
-
-function buildKokkaiOptEdit(){
-  const wrap=document.getElementById('kokkai-opts-edit');wrap.innerHTML='';
-  cfg.kokkaiOpts.forEach((opt,i)=>{const row=document.createElement('div');row.className='opt-row';row.innerHTML=`<input class="opt-inp" id="kopt-${i}" type="text" value="${opt}"><button class="opt-del" onclick="delKokkaiOpt(${i})" title="削除">×</button>`;wrap.appendChild(row);});
-}
-function addKokkaiOpt(){cfg.kokkaiOpts.push('新しい選択肢');buildKokkaiOptEdit();}
-function delKokkaiOpt(i){if(cfg.kokkaiOpts.length<=1){alert('選択肢は最低1つ必要です。');return;}cfg.kokkaiOpts.splice(i,1);buildKokkaiOptEdit();}
-
 function toggleReqBadge(key,checked){
   const b=document.getElementById('badge-'+key);
   if(b){b.className=checked?'badge-req':'badge-opt';b.textContent=checked?'必須':'任意';}
 }
-
 function applyEdits(){
   cfg.title=document.getElementById('ed-title').value.trim()||cfg.title;
   cfg.qs.forEach(q=>{
@@ -477,9 +480,7 @@ function applyEdits(){
     if(inp&&inp.value.trim())q.label=inp.value.trim();
     if(chk)q.req=chk.checked;
   });
-  const newOpts=[];cfg.kokkaiOpts.forEach((_,i)=>{const inp=document.getElementById('kopt-'+i);if(inp&&inp.value.trim())newOpts.push(inp.value.trim());});
-  if(newOpts.length>0)cfg.kokkaiOpts=newOpts;
-  applyConfig();buildKokkaiOptEdit();showAdmToast('edit-toast','フォームに反映しました。');
+  applyConfig();showAdmToast('edit-toast','フォームに反映しました。');
 }
 function resetEdits(){cfg=JSON.parse(JSON.stringify(DEFAULTS));buildEditUI();applyConfig();showAdmToast('edit-toast','初期値に戻しました。');}
 
@@ -489,8 +490,8 @@ function updatePreview(){
   document.getElementById('prev-req-note').textContent=hasReq?'* は必須項目です':'';
   document.getElementById('prev-questions').innerHTML=cfg.qs.map(q=>{
     let extra='';
-    if(q.key==='q4'){const all=[...cfg.kokkaiOpts,'その他','なし'];extra=`<div class="prev-opts">${all.map(o=>`<span class="prev-opt">${o}</span>`).join('')}</div>`;}
-    else if(q.key==='q2')extra=`<div class="prev-note">総支部選択 → 支部一覧 or 合同開催（自由入力）</div>`;
+    if(q.key==='q1')extra=`<div class="prev-opts"><span class="prev-opt">有</span><span class="prev-opt">無（理由入力）</span></div>`;
+    else if(q.key==='q3')extra=`<div class="prev-note">総支部選択 → 支部 or 合同開催（自由入力）</div>`;
     else extra=`<div class="prev-note">${q.note}</div>`;
     return `<div class="prev-sec"><div class="prev-qt">${q.label}${q.req?'<span style="color:#d93025;margin-left:3px">*</span>':''}</div>${extra}</div>`;
   }).join('');
@@ -517,72 +518,114 @@ function showDow(){
   if(!m||!d)return;const yr=(m>=4)?2026:2027;
   document.getElementById('dow-disp').textContent='曜日：'+DOW[new Date(yr,m-1,d).getDay()]+'曜日';
 }
-function toggleOther(){
-  const v=document.querySelector('input[name=kokkai]:checked')?.value;
-  document.getElementById('other-wrap').classList.toggle('hidden',v!=='その他');
-}
 function getDateStr(){
   const m=document.getElementById('month').value,d=document.getElementById('day').value;
   if(!m||!d)return '';const yr=(parseInt(m)>=4)?2026:2027;
   return m+'/'+d+'（'+DOW[new Date(yr,parseInt(m)-1,parseInt(d)).getDay()]+'）';
 }
-function getKokkai(){const v=document.querySelector('input[name=kokkai]:checked')?.value||'';return v==='その他'?'その他：'+document.getElementById('other-name').value:v;}
 function toast(id,msg){const t=document.getElementById(id);t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3500);}
 function showAdmToast(id,msg){const t=document.getElementById(id);t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3000);}
 
 function validateForm(){
-  const vals={
-    q1:()=>{const g=document.getElementById('gikai').value,m=document.querySelector('input[name=member]:checked')?.value||'';return g&&m;},
-    q2:()=>document.getElementById('soushi').value&&document.getElementById('shibu').value,
-    q3:()=>getDateStr(),
-    q4:()=>document.querySelector('input[name=kokkai]:checked')?.value,
-    q5:()=>document.getElementById('sonen').value.trim(),
-    q6:()=>document.getElementById('josi').value.trim(),
-    q7:()=>document.getElementById('seinen').value.trim(),
-    q8:()=>document.getElementById('freeText').value.trim()
-  };
+  const kaisai=document.querySelector('input[name=kaisai]:checked')?.value||'';
   const errs=[];
-  cfg.qs.forEach(q=>{if(q.req&&vals[q.key]&&!vals[q.key]())errs.push(q.label.replace(/（[^）]*）/g,'').trim()+'を入力してください');});
+  cfg.qs.forEach(q=>{
+    if(!q.req)return;
+    let ok=true;
+    if(q.key==='q1')ok=!!kaisai;
+    else if(q.key==='q2')ok=!!(document.getElementById('gikai').value&&document.querySelector('input[name=member]:checked')?.value);
+    else if(q.key==='q3')ok=!!(document.getElementById('soushi').value&&document.getElementById('shibu').value);
+    else if(q.key==='q4')ok=!!getDateStr();
+    else if(q.key==='q5')ok=!!document.getElementById('sonen').value.trim();
+    else if(q.key==='q6')ok=!!document.getElementById('josi').value.trim();
+    else if(q.key==='q7')ok=!!document.getElementById('seinen').value.trim();
+    else if(q.key==='q8')ok=!!document.getElementById('freeText').value.trim();
+    if(!ok)errs.push(q.label.replace(/（[^）]*）/g,'').trim()+'を入力してください');
+  });
   return errs;
 }
+
 function submitForm(){
   const errs=validateForm();if(errs.length){toast('f-toast',errs[0]);return;}
+  const kaisai=document.querySelector('input[name=kaisai]:checked')?.value||'';
+  const nashi=kaisai==='無'?document.getElementById('nashi-reason').value:'';
   const now=new Date(),ts=now.getFullYear()+'/'+(now.getMonth()+1)+'/'+now.getDate()+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  submissions.push({id:Date.now(),送信日時:ts,議会名:document.getElementById('gikai').value,氏名:document.querySelector('input[name=member]:checked')?.value||'',総支部:document.getElementById('soushi').value,開催単位:getShibuValue(),開催日時:getDateStr(),国会担当:getKokkai(),壮年:document.getElementById('sonen').value,女性:document.getElementById('josi').value,青年:document.getElementById('seinen').value,自由記述:document.getElementById('freeText').value});
+  submissions.push({
+    id:Date.now(),送信日時:ts,
+    開催有無:kaisai+(nashi?'（理由：'+nashi+'）':''),
+    議会名:document.getElementById('gikai').value,
+    氏名:document.querySelector('input[name=member]:checked')?.value||'',
+    総支部:document.getElementById('soushi').value,
+    開催単位:getShibuValue(),
+    開催日時:getDateStr(),
+    壮年:document.getElementById('sonen').value,
+    女性:document.getElementById('josi').value,
+    青年:document.getElementById('seinen').value,
+    自由記述:document.getElementById('freeText').value
+  });
   toast('f-toast','送信しました。ありがとうございました。');setTimeout(resetForm,800);
 }
+
 function resetForm(){
-  document.getElementById('gikai').value='';document.getElementById('member-list').innerHTML='';document.getElementById('member-wrap').classList.add('hidden');
-  document.getElementById('soushi').value='';document.getElementById('shibu').innerHTML='<option value="">選択してください</option>';
-  document.getElementById('shibu-wrap').classList.add('hidden');document.getElementById('godo-wrap').classList.add('hidden');document.getElementById('godo-text').value='';
-  ['month','day'].forEach(id=>document.getElementById(id).value='');document.getElementById('day').innerHTML='<option value="">日</option>';document.getElementById('dow-disp').textContent='';
-  document.querySelectorAll('input[name=kokkai]').forEach(r=>r.checked=false);document.getElementById('other-wrap').classList.add('hidden');document.getElementById('other-name').value='';
-  ['sonen','josi','seinen'].forEach(id=>document.getElementById(id).value='');document.getElementById('freeText').value='';
+  document.querySelectorAll('input[name=kaisai]').forEach(r=>r.checked=false);
+  document.getElementById('nashi-wrap').classList.add('hidden');
+  document.getElementById('nashi-reason').value='';
+  document.getElementById('gikai').value='';
+  document.getElementById('member-list').innerHTML='';
+  document.getElementById('member-wrap').classList.add('hidden');
+  document.getElementById('soushi').value='';
+  document.getElementById('shibu').innerHTML='<option value="">選択してください</option>';
+  document.getElementById('shibu-wrap').classList.add('hidden');
+  document.getElementById('godo-wrap').classList.add('hidden');
+  document.getElementById('godo-text').value='';
+  ['month','day'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('day').innerHTML='<option value="">日</option>';
+  document.getElementById('dow-disp').textContent='';
+  ['sonen','josi','seinen'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('freeText').value='';
 }
+
 function renderAdmin(){renderStats();renderTable();}
 function renderStats(){
   const t=submissions.length,s=submissions.reduce((a,r)=>a+(parseInt(r.壮年)||0),0),j=submissions.reduce((a,r)=>a+(parseInt(r.女性)||0),0),n=submissions.reduce((a,r)=>a+(parseInt(r.青年)||0),0);
   document.getElementById('adm-stats').innerHTML=`<div class="sc"><div class="sc-num">${t}</div><div class="sc-lbl">回答件数</div></div><div class="sc"><div class="sc-num">${s}</div><div class="sc-lbl">壮年 合計</div></div><div class="sc"><div class="sc-num">${j}</div><div class="sc-lbl">女性 合計</div></div><div class="sc"><div class="sc-num">${n}</div><div class="sc-lbl">青年 合計</div></div>`;
 }
 function getFiltered(){
-  const fg=document.getElementById('f-gikai')?.value||'',fs=document.getElementById('f-soushi')?.value||'',fk=document.getElementById('f-kokkai')?.value||'';
-  return submissions.filter(r=>{if(fg&&r.議会名!==fg)return false;if(fs&&r.総支部!==fs)return false;if(fk&&!r.国会担当.startsWith(fk))return false;return true;});
+  const fg=document.getElementById('f-gikai')?.value||'',fs=document.getElementById('f-soushi')?.value||'',fk=document.getElementById('f-kaisai')?.value||'';
+  return submissions.filter(r=>{
+    if(fg&&r.議会名!==fg)return false;
+    if(fs&&r.総支部!==fs)return false;
+    if(fk&&!r.開催有無.startsWith(fk))return false;
+    return true;
+  });
 }
 function renderTable(){
   const rows=getFiltered(),wrap=document.getElementById('tbl-wrap');updateSelCnt();
   if(!rows.length){wrap.innerHTML='<div class="empty">回答がまだありません</div>';return;}
-  let h=`<div style="overflow-x:auto"><table class="atbl"><thead><tr><th><input type="checkbox" id="cb-all" onchange="toggleAll(this)" style="accent-color:#7248b9;cursor:pointer"></th><th>送信日時</th><th>議会名</th><th>氏名</th><th>総支部</th><th>開催単位</th><th>開催日時</th><th>国会担当</th><th>壮年</th><th>女性</th><th>青年</th><th></th></tr></thead><tbody>`;
-  rows.forEach(r=>{h+=`<tr><td><input type="checkbox" class="cb-row" data-id="${r.id}" onchange="updateSelCnt()" style="accent-color:#7248b9;cursor:pointer"></td><td style="white-space:nowrap">${r.送信日時}</td><td>${r.議会名}</td><td style="white-space:nowrap">${r.氏名}</td><td>${r.総支部}</td><td>${r.開催単位}</td><td style="white-space:nowrap">${r.開催日時}</td><td>${r.国会担当}</td><td>${r.壮年}</td><td>${r.女性}</td><td>${r.青年}</td><td><button class="del-btn" onclick="delRow(${r.id})">削除</button></td></tr>`;});
+  let h=`<div style="overflow-x:auto"><table class="atbl"><thead><tr>
+    <th><input type="checkbox" id="cb-all" onchange="toggleAll(this)" style="accent-color:#7248b9;cursor:pointer"></th>
+    <th>送信日時</th><th>開催有無</th><th>議会名</th><th>氏名</th><th>総支部</th><th>開催単位</th><th>開催日時</th><th>壮年</th><th>女性</th><th>青年</th><th></th>
+  </tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr>
+    <td><input type="checkbox" class="cb-row" data-id="${r.id}" onchange="updateSelCnt()" style="accent-color:#7248b9;cursor:pointer"></td>
+    <td style="white-space:nowrap">${r.送信日時}</td>
+    <td style="font-weight:500;color:${r.開催有無.startsWith('無')?'#c62828':'#2e7d32'}">${r.開催有無}</td>
+    <td>${r.議会名}</td><td style="white-space:nowrap">${r.氏名}</td>
+    <td>${r.総支部}</td><td>${r.開催単位}</td><td style="white-space:nowrap">${r.開催日時}</td>
+    <td>${r.壮年}</td><td>${r.女性}</td><td>${r.青年}</td>
+    <td><button class="del-btn" onclick="delRow(${r.id})">削除</button></td>
+  </tr>`;});
   h+=`</tbody></table></div>`;wrap.innerHTML=h;
 }
 function toggleAll(cb){document.querySelectorAll('.cb-row').forEach(c=>c.checked=cb.checked);updateSelCnt();}
 function updateSelCnt(){const n=document.querySelectorAll('.cb-row:checked').length;const el=document.getElementById('sel-cnt');if(el)el.textContent=n?n+'件を選択中':'';}
 function delRow(id){submissions=submissions.filter(r=>r.id!==id);renderAdmin();}
+
 function buildSheet(rows){
-  const HDR=['送信日時','議会名','氏名','総支部','開催単位','開催日時','国会担当','壮年参加者数','女性参加者数','青年参加者数','自由記述'];
-  const aoa=[HDR,...rows.map(r=>[r.送信日時,r.議会名,r.氏名,r.総支部,r.開催単位,r.開催日時,r.国会担当,r.壮年,r.女性,r.青年,r.自由記述])];
+  const HDR=['送信日時','開催有無','議会名','氏名','総支部','開催単位','開催日時','壮年参加者数','女性参加者数','青年参加者数','自由記述'];
+  const aoa=[HDR,...rows.map(r=>[r.送信日時,r.開催有無,r.議会名,r.氏名,r.総支部,r.開催単位,r.開催日時,r.壮年,r.女性,r.青年,r.自由記述])];
   const ws=XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols']=[{wch:18},{wch:14},{wch:12},{wch:10},{wch:18},{wch:12},{wch:14},{wch:10},{wch:8},{wch:8},{wch:40}];
+  ws['!cols']=[{wch:18},{wch:20},{wch:14},{wch:12},{wch:10},{wch:18},{wch:12},{wch:10},{wch:8},{wch:8},{wch:40}];
   const hS={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'7248B9'}},alignment:{horizontal:'center'}};
   HDR.forEach((_,i)=>{const c=XLSX.utils.encode_cell({r:0,c:i});if(ws[c])ws[c].s=hS;});
   return ws;
