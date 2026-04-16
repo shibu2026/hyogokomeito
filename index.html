@@ -49,8 +49,9 @@ body{font-family:'Google Sans',Roboto,sans-serif}
 .member-radio input{accent-color:#7248b9;width:16px;height:16px;flex-shrink:0}
 .member-name{font-weight:500}
 .member-kana{font-size:12px;color:#5f6368;margin-left:4px}
-.nashi-box{background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:10px 14px;margin-top:12px}
-.nashi-label{font-size:13px;color:#795548;margin-bottom:6px}
+.nashi-box{background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:12px 14px;margin-top:12px}
+.nashi-label{font-size:13px;color:#795548;font-weight:500;margin-bottom:8px}
+.nashi-req{color:#d93025;margin-left:3px;font-size:13px}
 .sonota-box{background:#f3f0fc;border:1px solid #c5b8f8;border-radius:6px;padding:10px 14px;margin-top:12px}
 .sonota-label{font-size:13px;color:#534AB7;margin-bottom:6px}
 .info-banner{background:#fff3e0;border:1px solid #ffb74d;border-radius:8px;padding:12px 16px;margin:0 auto 12px;max-width:640px;font-size:14px;color:#e65100;font-weight:500;text-align:center}
@@ -150,28 +151,9 @@ body{font-family:'Google Sans',Roboto,sans-serif}
       </div>
     </div>
 
-    <!-- Q2: 開催有無 -->
+    <!-- Q2: 担当総支部・支部 -->
     <div class="f-sec">
       <div class="qt" id="disp-q2"></div>
-      <div class="rg">
-        <label class="ri"><input type="radio" name="kaisai" value="有" onchange="onKaisaiChange()">有</label>
-        <label class="ri"><input type="radio" name="kaisai" value="無" onchange="onKaisaiChange()">無</label>
-      </div>
-      <div id="nashi-wrap" class="hidden">
-        <div class="nashi-box" style="margin-top:12px">
-          <div class="nashi-label">「無」を選択した理由を入力してください</div>
-          <input class="inp" id="nashi-reason" type="text" placeholder="理由を入力">
-        </div>
-      </div>
-    </div>
-
-    <div id="info-banner" class="info-banner hidden">
-      開催「無」を選択中 — 担当総支部・支部を選択後、そのまま送信できます
-    </div>
-
-    <!-- Q3: 担当総支部・支部 -->
-    <div class="f-sec">
-      <div class="qt" id="disp-q3"></div>
       <div style="margin-bottom:16px">
         <div class="dlbl">総支部を選択してください</div>
         <select class="sel" id="soushi" onchange="updateShibu()">
@@ -191,6 +173,26 @@ body{font-family:'Google Sans',Roboto,sans-serif}
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Q3: 開催有無 -->
+    <div class="f-sec">
+      <div class="qt" id="disp-q3"></div>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="kaisai" value="有" onchange="onKaisaiChange()">有</label>
+        <label class="ri"><input type="radio" name="kaisai" value="無" onchange="onKaisaiChange()">無</label>
+      </div>
+      <div id="nashi-wrap" class="hidden">
+        <div class="nashi-box" style="margin-top:12px">
+          <div class="nashi-label">「無」の理由を明記してください<span class="nashi-req">*</span></div>
+          <input class="inp" id="nashi-reason" type="text" placeholder="理由を入力（必須）">
+        </div>
+      </div>
+    </div>
+
+    <!-- 「無」バナー -->
+    <div id="info-banner" class="info-banner hidden">
+      開催「無」を選択中 — 理由を入力後、そのまま送信できます
     </div>
 
     <!-- Q4: 開催日時（有のみ） -->
@@ -337,8 +339,8 @@ const DEFAULTS={
   title:"2026年度 支部会開催報告の入力フォーム",
   qs:[
     {key:"q1",label:"①議会名・氏名",req:true,fixed:true,note:"議会名 → 氏名 選択"},
-    {key:"q2",label:"②支部会開催の有無",req:true,fixed:true,note:"有／無 選択"},
-    {key:"q3",label:"③担当総支部・支部",req:true,fixed:true,note:"総支部 → 支部 or その他（自由入力）"},
+    {key:"q2",label:"②担当総支部・支部",req:true,fixed:true,note:"総支部 → 支部 or その他（自由入力）"},
+    {key:"q3",label:"③支部会開催の有無",req:true,fixed:true,note:"有／無 選択（無の場合は理由入力が必須）"},
     {key:"q4",label:"④開催日時・曜日",req:true,fixed:false,note:"月・日 選択（開催「有」のみ）"},
     {key:"q5",label:"⑤【壮年】参加者の人数（数字のみ。0なら0と入力）",req:true,fixed:false,note:"短文入力（開催「有」のみ）"},
     {key:"q6",label:"⑥【女性】参加者の人数（数字のみ。0なら0と入力）",req:true,fixed:false,note:"短文入力（開催「有」のみ）"},
@@ -388,39 +390,22 @@ function onKaisaiChange(){
 }
 
 function updateShibu(){
-  const s=document.getElementById('soushi').value;
-  const sel=document.getElementById('shibu');
-  const sw=document.getElementById('shibu-wrap');
-  const sow=document.getElementById('sonota-wrap');
+  const s=document.getElementById('soushi').value,sel=document.getElementById('shibu'),sw=document.getElementById('shibu-wrap'),sow=document.getElementById('sonota-wrap');
   sel.innerHTML='<option value="">選択してください</option>';
-  sow.classList.add('hidden');
-  document.getElementById('sonota-text').value='';
+  sow.classList.add('hidden');document.getElementById('sonota-text').value='';
   if(!s){sw.classList.add('hidden');return;}
-  // 支部一覧を追加（合同開催は削除、その他を追加）
-  (SOUSHI_SHIBU[s]||[]).forEach(sb=>{
-    const o=document.createElement('option');o.value=sb;o.textContent=sb;sel.appendChild(o);
-  });
+  (SOUSHI_SHIBU[s]||[]).forEach(sb=>{const o=document.createElement('option');o.value=sb;o.textContent=sb;sel.appendChild(o);});
   const ot=document.createElement('option');ot.value='その他';ot.textContent='その他';sel.appendChild(ot);
   sw.classList.remove('hidden');
 }
-
 function onShibuChange(){
-  const v=document.getElementById('shibu').value;
-  const sow=document.getElementById('sonota-wrap');
-  if(v==='その他'){
-    sow.classList.remove('hidden');
-  } else {
-    sow.classList.add('hidden');
-    document.getElementById('sonota-text').value='';
-  }
+  const v=document.getElementById('shibu').value,sow=document.getElementById('sonota-wrap');
+  if(v==='その他')sow.classList.remove('hidden');
+  else{sow.classList.add('hidden');document.getElementById('sonota-text').value='';}
 }
-
 function getShibuValue(){
   const s=document.getElementById('shibu').value;
-  if(s==='その他'){
-    const txt=document.getElementById('sonota-text').value.trim();
-    return 'その他'+(txt?'：'+txt:'');
-  }
+  if(s==='その他'){const t=document.getElementById('sonota-text').value.trim();return 'その他'+(t?'：'+t:'');}
   return s;
 }
 
@@ -445,12 +430,19 @@ function showAdmToast(id,msg){const t=document.getElementById(id);t.textContent=
 
 function validateForm(){
   const errs=[];
+  // ① 議会・氏名
   if(!document.getElementById('gikai').value||!document.querySelector('input[name=member]:checked')?.value)
     errs.push('①議会名・氏名を選択してください');
-  const kaisai=getKaisai();
-  if(!kaisai)errs.push('②支部会開催の有無を選択してください');
+  // ② 総支部・支部
   if(!document.getElementById('soushi').value||!document.getElementById('shibu').value)
-    errs.push('③担当総支部・支部を選択してください');
+    errs.push('②担当総支部・支部を選択してください');
+  // ③ 開催有無
+  const kaisai=getKaisai();
+  if(!kaisai)errs.push('③支部会開催の有無を選択してください');
+  // 無の場合：理由が必須
+  if(kaisai==='無'&&!document.getElementById('nashi-reason').value.trim())
+    errs.push('③開催「無」の理由を入力してください');
+  // 有の場合：④〜⑦
   if(kaisai==='有'){
     cfg.qs.forEach(q=>{
       if(!q.req||q.fixed)return;
@@ -468,15 +460,17 @@ function validateForm(){
 
 function submitForm(){
   const errs=validateForm();if(errs.length){toast('f-toast',errs[0]);return;}
-  const kaisai=getKaisai(),nashi=kaisai==='無'?document.getElementById('nashi-reason').value:'';
+  const kaisai=getKaisai();
+  const nashi=kaisai==='無'?document.getElementById('nashi-reason').value.trim():'';
   const now=new Date(),ts=now.getFullYear()+'/'+(now.getMonth()+1)+'/'+now.getDate()+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   submissions.push({
     id:Date.now(),送信日時:ts,
     議会名:document.getElementById('gikai').value,
     氏名:document.querySelector('input[name=member]:checked')?.value||'',
-    開催有無:kaisai+(nashi?'（理由：'+nashi+'）':''),
     総支部:document.getElementById('soushi').value,
     支部:getShibuValue(),
+    開催有無:kaisai,
+    開催無理由:nashi,
     開催日時:kaisai==='有'?getDateStr():'',
     壮年:kaisai==='有'?document.getElementById('sonen').value:'',
     女性:kaisai==='有'?document.getElementById('josi').value:'',
@@ -488,10 +482,10 @@ function submitForm(){
 
 function resetForm(){
   document.getElementById('gikai').value='';document.getElementById('member-list').innerHTML='';document.getElementById('member-wrap').classList.add('hidden');
-  document.querySelectorAll('input[name=kaisai]').forEach(r=>r.checked=false);
-  document.getElementById('nashi-wrap').classList.add('hidden');document.getElementById('info-banner').classList.add('hidden');document.getElementById('nashi-reason').value='';
   document.getElementById('soushi').value='';document.getElementById('shibu').innerHTML='<option value="">選択してください</option>';
   document.getElementById('shibu-wrap').classList.add('hidden');document.getElementById('sonota-wrap').classList.add('hidden');document.getElementById('sonota-text').value='';
+  document.querySelectorAll('input[name=kaisai]').forEach(r=>r.checked=false);
+  document.getElementById('nashi-wrap').classList.add('hidden');document.getElementById('info-banner').classList.add('hidden');document.getElementById('nashi-reason').value='';
   ['month','day'].forEach(id=>document.getElementById(id).value='');document.getElementById('day').innerHTML='<option value="">日</option>';document.getElementById('dow-disp').textContent='';
   ['sonen','josi','seinen'].forEach(id=>document.getElementById(id).value='');document.getElementById('freeText').value='';
   ['sec-q4','sec-q567','sec-q8'].forEach(id=>document.getElementById(id).classList.add('dimmed'));
@@ -521,8 +515,8 @@ function updatePreview(){
   document.getElementById('prev-req-note').textContent='* は必須項目です';
   document.getElementById('prev-questions').innerHTML=cfg.qs.map(q=>{
     let extra='';
-    if(q.key==='q2')extra=`<div class="prev-opts"><span class="prev-opt">有</span><span class="prev-opt">無（理由入力）</span></div>`;
-    else if(q.key==='q3')extra=`<div class="prev-note">総支部 → 支部 or その他（自由入力）</div>`;
+    if(q.key==='q2')extra=`<div class="prev-note">総支部 → 支部 or その他（自由入力）</div>`;
+    else if(q.key==='q3')extra=`<div class="prev-opts"><span class="prev-opt">有</span><span class="prev-opt">無（理由入力・必須）</span></div>`;
     else extra=`<div class="prev-note">${q.note}</div>`;
     const hint=['q4','q5','q6','q7','q8'].includes(q.key)?'<span style="font-size:10px;color:#aaa;margin-left:6px">開催「有」のみ</span>':'';
     return `<div class="prev-sec"><div class="prev-qt">${q.label}${q.req?'<span style="color:#d93025;margin-left:3px">*</span>':''}${hint}</div>${extra}</div>`;
@@ -536,23 +530,23 @@ function renderStats(){
 }
 function getFiltered(){
   const fg=document.getElementById('f-gikai')?.value||'',fs=document.getElementById('f-soushi')?.value||'',fk=document.getElementById('f-kaisai')?.value||'';
-  return submissions.filter(r=>{if(fg&&r.議会名!==fg)return false;if(fs&&r.総支部!==fs)return false;if(fk&&!r.開催有無.startsWith(fk))return false;return true;});
+  return submissions.filter(r=>{if(fg&&r.議会名!==fg)return false;if(fs&&r.総支部!==fs)return false;if(fk&&r.開催有無!==fk)return false;return true;});
 }
 function renderTable(){
   const rows=getFiltered(),wrap=document.getElementById('tbl-wrap');updateSelCnt();
   if(!rows.length){wrap.innerHTML='<div class="empty">回答がまだありません</div>';return;}
-  let h=`<div style="overflow-x:auto"><table class="atbl"><thead><tr><th><input type="checkbox" id="cb-all" onchange="toggleAll(this)" style="accent-color:#7248b9;cursor:pointer"></th><th>送信日時</th><th>議会名</th><th>氏名</th><th>開催有無</th><th>総支部</th><th>支部</th><th>開催日時</th><th>壮年</th><th>女性</th><th>青年</th><th></th></tr></thead><tbody>`;
-  rows.forEach(r=>{h+=`<tr><td><input type="checkbox" class="cb-row" data-id="${r.id}" onchange="updateSelCnt()" style="accent-color:#7248b9;cursor:pointer"></td><td style="white-space:nowrap">${r.送信日時}</td><td>${r.議会名}</td><td style="white-space:nowrap">${r.氏名}</td><td style="font-weight:500;color:${r.開催有無.startsWith('無')?'#c62828':'#2e7d32'}">${r.開催有無}</td><td>${r.総支部}</td><td>${r.支部}</td><td style="white-space:nowrap">${r.開催日時}</td><td>${r.壮年}</td><td>${r.女性}</td><td>${r.青年}</td><td><button class="del-btn" onclick="delRow(${r.id})">削除</button></td></tr>`;});
+  let h=`<div style="overflow-x:auto"><table class="atbl"><thead><tr><th><input type="checkbox" id="cb-all" onchange="toggleAll(this)" style="accent-color:#7248b9;cursor:pointer"></th><th>送信日時</th><th>議会名</th><th>氏名</th><th>総支部</th><th>支部</th><th>開催有無</th><th>理由</th><th>開催日時</th><th>壮年</th><th>女性</th><th>青年</th><th></th></tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr><td><input type="checkbox" class="cb-row" data-id="${r.id}" onchange="updateSelCnt()" style="accent-color:#7248b9;cursor:pointer"></td><td style="white-space:nowrap">${r.送信日時}</td><td>${r.議会名}</td><td style="white-space:nowrap">${r.氏名}</td><td>${r.総支部}</td><td>${r.支部}</td><td style="font-weight:500;color:${r.開催有無==='無'?'#c62828':'#2e7d32'}">${r.開催有無}</td><td style="color:#795548">${r.開催無理由}</td><td style="white-space:nowrap">${r.開催日時}</td><td>${r.壮年}</td><td>${r.女性}</td><td>${r.青年}</td><td><button class="del-btn" onclick="delRow(${r.id})">削除</button></td></tr>`;});
   h+=`</tbody></table></div>`;wrap.innerHTML=h;
 }
 function toggleAll(cb){document.querySelectorAll('.cb-row').forEach(c=>c.checked=cb.checked);updateSelCnt();}
 function updateSelCnt(){const n=document.querySelectorAll('.cb-row:checked').length;const el=document.getElementById('sel-cnt');if(el)el.textContent=n?n+'件を選択中':'';}
 function delRow(id){submissions=submissions.filter(r=>r.id!==id);renderAdmin();}
 function buildSheet(rows){
-  const HDR=['送信日時','議会名','氏名','開催有無','総支部','支部','開催日時','壮年参加者数','女性参加者数','青年参加者数','自由記述'];
-  const aoa=[HDR,...rows.map(r=>[r.送信日時,r.議会名,r.氏名,r.開催有無,r.総支部,r.支部,r.開催日時,r.壮年,r.女性,r.青年,r.自由記述])];
+  const HDR=['送信日時','議会名','氏名','総支部','支部','開催有無','開催無の理由','開催日時','壮年参加者数','女性参加者数','青年参加者数','自由記述'];
+  const aoa=[HDR,...rows.map(r=>[r.送信日時,r.議会名,r.氏名,r.総支部,r.支部,r.開催有無,r.開催無理由,r.開催日時,r.壮年,r.女性,r.青年,r.自由記述])];
   const ws=XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols']=[{wch:18},{wch:14},{wch:12},{wch:20},{wch:10},{wch:16},{wch:12},{wch:10},{wch:8},{wch:8},{wch:40}];
+  ws['!cols']=[{wch:18},{wch:14},{wch:12},{wch:10},{wch:16},{wch:8},{wch:24},{wch:12},{wch:10},{wch:8},{wch:8},{wch:40}];
   const hS={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'7248B9'}},alignment:{horizontal:'center'}};
   HDR.forEach((_,i)=>{const c=XLSX.utils.encode_cell({r:0,c:i});if(ws[c])ws[c].s=hS;});
   return ws;
